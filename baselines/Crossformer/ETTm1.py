@@ -18,7 +18,7 @@ CFG.RUNNER = SimpleTimeSeriesForecastingRunner
 CFG.DATASET_CLS = TimeSeriesForecastingDataset
 CFG.DATASET_NAME = "ETTm1"
 CFG.DATASET_TYPE = "Electricity Transformer Temperature"
-CFG.DATASET_INPUT_LEN = 720
+CFG.DATASET_INPUT_LEN = 96
 CFG.DATASET_OUTPUT_LEN = 336
 CFG.GPU_NUM = 1
 # CFG.RESCALE = False
@@ -71,15 +71,15 @@ CFG.TRAIN.LR_SCHEDULER.PARAM = {
 CFG.TRAIN.CLIP_GRAD_PARAM = {
     "max_norm": 5.0
 }
-CFG.TRAIN.NUM_EPOCHS = 50
+CFG.TRAIN.NUM_EPOCHS = 1000
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    'checkpoints',
+    '/SSDc/sowon/checkpoints/5sd8ss7y81',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data
 CFG.TRAIN.DATA = EasyDict()
 # read data
-CFG.TRAIN.DATA.DIR = 'datasets/' + CFG.DATASET_NAME
+CFG.TRAIN.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.TRAIN.DATA.BATCH_SIZE = 64
 CFG.TRAIN.DATA.PREFETCH = False
@@ -93,7 +93,7 @@ CFG.VAL.INTERVAL = 1
 # validating data
 CFG.VAL.DATA = EasyDict()
 # read data
-CFG.VAL.DATA.DIR = 'datasets/' + CFG.DATASET_NAME
+CFG.VAL.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.VAL.DATA.BATCH_SIZE = 64
 CFG.VAL.DATA.PREFETCH = False
@@ -107,7 +107,7 @@ CFG.TEST.INTERVAL = 1
 # test data
 CFG.TEST.DATA = EasyDict()
 # read data
-CFG.TEST.DATA.DIR = 'datasets/' + CFG.DATASET_NAME
+CFG.TEST.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.TEST.DATA.BATCH_SIZE = 64
 CFG.TEST.DATA.PREFETCH = False

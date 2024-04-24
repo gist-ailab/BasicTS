@@ -130,8 +130,8 @@ if __name__ == "__main__":
     DOM = True                  # if add day_of_month feature
     DOY = True                  # if add day_of_year feature
 
-    OUTPUT_DIR = "datasets/" + DATASET_NAME
-    DATA_FILE_PATH = "datasets/raw_data/{0}/{0}.csv".format(DATASET_NAME)
+    OUTPUT_DIR = "/ailab_mat/dataset/forecast/lstf/" + DATASET_NAME
+    DATA_FILE_PATH = "/ailab_mat/dataset/forecast/raw_data/{0}/{0}.csv".format(DATASET_NAME)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_dir", type=str,

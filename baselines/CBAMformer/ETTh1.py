@@ -7,13 +7,13 @@ from easydict import EasyDict
 from basicts.losses import masked_mae, masked_mse
 from basicts.data import TimeSeriesForecastingDataset
 from basicts.runners import SimpleTimeSeriesForecastingRunner
-from .arch import Crossformer
+from .arch import CBAMformer
 # from .arch import Crossformer
 
 CFG = EasyDict()
 
 # ================= general ================= #
-CFG.DESCRIPTION = "Crossformer model configuration "
+CFG.DESCRIPTION = "CBAMformer model configuration "
 CFG.RUNNER = SimpleTimeSeriesForecastingRunner
 CFG.DATASET_CLS = TimeSeriesForecastingDataset
 CFG.DATASET_NAME = "ETTh1"
@@ -31,8 +31,8 @@ CFG.ENV.CUDNN.ENABLED = True
 
 # ================= model ================= #
 CFG.MODEL = EasyDict()
-CFG.MODEL.NAME = "Crossformer"
-CFG.MODEL.ARCH = Crossformer
+CFG.MODEL.NAME = "CBAMformer"
+CFG.MODEL.ARCH = CBAMformer
 NUM_NODES = 7
 CFG.MODEL.PARAM = {
     "data_dim": NUM_NODES,
@@ -70,7 +70,7 @@ CFG.TRAIN.LR_SCHEDULER.PARAM = {
 # ================= train ================= #
 CFG.TRAIN.NUM_EPOCHS = 50
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    '/SSDc/sowon/checkpoints/96/1',
+    '/SSDc/sowon/checkpoints/96',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data

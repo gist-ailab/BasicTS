@@ -14,11 +14,11 @@ class DSW_embedding(nn.Module):
         self.linear = nn.Linear(seg_len, d_model)
 
     def forward(self, x):
-        batch, ts_len, ts_dim = x.shape
-
-        x_segment = rearrange(x, 'b (seg_num seg_len) d -> (b d seg_num) seg_len', seg_len = self.seg_len)
+        batch, ts_len, num_feat = x.shape
+                                 
+        x_segment = rearrange(x, 'b (seg_num seg_len) num_feat -> (b num_feat seg_num) seg_len', seg_len = self.seg_len)
         x_embed = self.linear(x_segment)
-        x_embed = rearrange(x_embed, '(b d seg_num) d_model -> b d seg_num d_model', b = batch, d = ts_dim)
+        x_embed = rearrange(x_embed, '(b num_feat seg_num) seg_dim -> b num_feat seg_num seg_dim', b = batch, num_feat = num_feat)
         
         return x_embed
 

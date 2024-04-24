@@ -7,8 +7,8 @@ from easydict import EasyDict
 from basicts.losses import masked_mae, masked_mse
 from basicts.data import TimeSeriesForecastingDataset
 from basicts.runners import SimpleTimeSeriesForecastingRunner
+
 from .arch import Crossformer
-# from .arch import Crossformer
 
 CFG = EasyDict()
 
@@ -16,7 +16,7 @@ CFG = EasyDict()
 CFG.DESCRIPTION = "Crossformer model configuration "
 CFG.RUNNER = SimpleTimeSeriesForecastingRunner
 CFG.DATASET_CLS = TimeSeriesForecastingDataset
-CFG.DATASET_NAME = "ETTh1"
+CFG.DATASET_NAME = "ETTm1"
 CFG.DATASET_TYPE = "Electricity Transformer Temperature"
 CFG.DATASET_INPUT_LEN = 96
 CFG.DATASET_OUTPUT_LEN = 336
@@ -38,7 +38,7 @@ CFG.MODEL.PARAM = {
     "data_dim": NUM_NODES,
     "in_len": CFG.DATASET_INPUT_LEN,
     "out_len": CFG.DATASET_OUTPUT_LEN,
-    "seg_len": 24,
+    "seg_len": 12,
     "win_size": 2,
     # default parameters
     "factor": 10,
@@ -58,19 +58,22 @@ CFG.TRAIN.LOSS = masked_mae
 CFG.TRAIN.OPTIM = EasyDict()
 CFG.TRAIN.OPTIM.TYPE = "Adam"
 CFG.TRAIN.OPTIM.PARAM = {
-    "lr": 0.00005
+    "lr": 0.0005
 }
 CFG.TRAIN.LR_SCHEDULER = EasyDict()
 CFG.TRAIN.LR_SCHEDULER.TYPE = "MultiStepLR"
 CFG.TRAIN.LR_SCHEDULER.PARAM = {
-    "milestones": [1, 5],
+    "milestones": [1],
     "gamma": 0.5
 }
 
 # ================= train ================= #
+CFG.TRAIN.CLIP_GRAD_PARAM = {
+    "max_norm": 5.0
+}
 CFG.TRAIN.NUM_EPOCHS = 50
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    '/SSDc/sowon/checkpoints/96/1',
+    '/SSDc/sowon/checkpoints/8',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data

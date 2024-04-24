@@ -7,16 +7,16 @@ from easydict import EasyDict
 from basicts.losses import masked_mae, masked_mse
 from basicts.data import TimeSeriesForecastingDataset
 from basicts.runners import SimpleTimeSeriesForecastingRunner
-from .arch import Crossformer
-# from .arch import Crossformer
+
+from .arch import CBAMformer
 
 CFG = EasyDict()
 
 # ================= general ================= #
-CFG.DESCRIPTION = "Crossformer model configuration "
+CFG.DESCRIPTION = "CBAMformer model configuration "
 CFG.RUNNER = SimpleTimeSeriesForecastingRunner
 CFG.DATASET_CLS = TimeSeriesForecastingDataset
-CFG.DATASET_NAME = "ETTh1"
+CFG.DATASET_NAME = "ETTm1"
 CFG.DATASET_TYPE = "Electricity Transformer Temperature"
 CFG.DATASET_INPUT_LEN = 96
 CFG.DATASET_OUTPUT_LEN = 336
@@ -31,18 +31,18 @@ CFG.ENV.CUDNN.ENABLED = True
 
 # ================= model ================= #
 CFG.MODEL = EasyDict()
-CFG.MODEL.NAME = "Crossformer"
-CFG.MODEL.ARCH = Crossformer
+CFG.MODEL.NAME = "CBAMformer"
+CFG.MODEL.ARCH = CBAMformer
 NUM_NODES = 7
 CFG.MODEL.PARAM = {
-    "data_dim": NUM_NODES,
-    "in_len": CFG.DATASET_INPUT_LEN,
-    "out_len": CFG.DATASET_OUTPUT_LEN,
-    "seg_len": 24,
-    "win_size": 2,
+    "n_feat": NUM_NODES,
+    "in_ts_len": CFG.DATASET_INPUT_LEN,
+    "out_ts_len": CFG.DATASET_OUTPUT_LEN,
+    "seg_len": 12,
+    "merge_win_size": 2,
     # default parameters
     "factor": 10,
-    "d_model": 256,
+    "d_seg": 256,
     "d_ff": 512,
     "n_heads": 4,
     "e_layers": 3,
@@ -58,25 +58,28 @@ CFG.TRAIN.LOSS = masked_mae
 CFG.TRAIN.OPTIM = EasyDict()
 CFG.TRAIN.OPTIM.TYPE = "Adam"
 CFG.TRAIN.OPTIM.PARAM = {
-    "lr": 0.00005
+    "lr": 0.0005
 }
 CFG.TRAIN.LR_SCHEDULER = EasyDict()
 CFG.TRAIN.LR_SCHEDULER.TYPE = "MultiStepLR"
 CFG.TRAIN.LR_SCHEDULER.PARAM = {
-    "milestones": [1, 5],
+    "milestones": [1],
     "gamma": 0.5
 }
 
 # ================= train ================= #
+CFG.TRAIN.CLIP_GRAD_PARAM = {
+    "max_norm": 5.0
+}
 CFG.TRAIN.NUM_EPOCHS = 50
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    '/SSDc/sowon/checkpoints/96/1',
+    '/SSDc/sowon/checkpoints_1',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data
 CFG.TRAIN.DATA = EasyDict()
 # read data
-CFG.TRAIN.DATA.DIR = '/ailab_mat/dataset/forecast/lstf/' + CFG.DATASET_NAME
+CFG.TRAIN.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.TRAIN.DATA.BATCH_SIZE = 64
 CFG.TRAIN.DATA.PREFETCH = False
@@ -90,7 +93,7 @@ CFG.VAL.INTERVAL = 1
 # validating data
 CFG.VAL.DATA = EasyDict()
 # read data
-CFG.VAL.DATA.DIR = '/ailab_mat/dataset/forecast/lstf/' + CFG.DATASET_NAME
+CFG.VAL.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.VAL.DATA.BATCH_SIZE = 64
 CFG.VAL.DATA.PREFETCH = False
@@ -104,7 +107,7 @@ CFG.TEST.INTERVAL = 1
 # test data
 CFG.TEST.DATA = EasyDict()
 # read data
-CFG.TEST.DATA.DIR = '/ailab_mat/dataset/forecast/lstf/' + CFG.DATASET_NAME
+CFG.TEST.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.TEST.DATA.BATCH_SIZE = 64
 CFG.TEST.DATA.PREFETCH = False
