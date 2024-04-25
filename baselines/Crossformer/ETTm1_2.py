@@ -73,7 +73,7 @@ CFG.TRAIN.CLIP_GRAD_PARAM = {
 }
 CFG.TRAIN.NUM_EPOCHS = 1000
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    '/SSDc/sowon/checkpoints/5sd8ss7y81',
+    '/SSDc/sowon/checkpoints/82',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data

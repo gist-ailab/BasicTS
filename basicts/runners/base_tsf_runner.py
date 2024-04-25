@@ -442,13 +442,13 @@ class BaseTimeSeriesForecastingRunner(BaseRunner):
         self.evaluate(returns_all)
         return returns_all
 
-    @master_only
-    def on_validating_end(self, train_epoch: Optional[int]):
-        """Callback at the end of validating.
+    # @master_only
+    # def on_validating_end(self, train_epoch: Optional[int]):
+    #     """Callback at the end of validating.
 
-        Args:
-            train_epoch (Optional[int]): current epoch if in training process.
-        """
+    #     Args:
+    #         train_epoch (Optional[int]): current epoch if in training process.
+    #     """
 
-        if train_epoch is not None:
-            self.save_best_model(train_epoch, "val_" + self.target_metrics, greater_best=False)
+    #     if train_epoch is not None:
+    #         self.save_best_model(train_epoch, "val_" + self.target_metrics, greater_best=False)

@@ -1,5 +1,6 @@
 from packaging import version
 from typing import Callable, Dict, Union, Tuple
+import torch
 
 import easytorch
 
@@ -25,8 +26,10 @@ def launch_training(cfg: Union[Dict, str], gpus: str = None, node_rank: int = 0)
     # config checking
     pass
     # launch training based on easytorch
+    
     easytorch_version = easytorch.__version__
     if version.parse(easytorch_version) >= version.parse("1.3"):
         easytorch.launch_training(cfg=cfg, devices=gpus, node_rank=node_rank)
     else:
         easytorch.launch_training(cfg=cfg, gpus=gpus, node_rank=node_rank)
+

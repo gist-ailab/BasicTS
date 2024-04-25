@@ -7,22 +7,22 @@ from easydict import EasyDict
 from basicts.losses import masked_mae, masked_mse
 from basicts.data import TimeSeriesForecastingDataset
 from basicts.runners import SimpleTimeSeriesForecastingRunner
-
-from .arch import Crossformer
+from .arch import CBAMformerRouter
+# from .arch import Crossformer
 
 CFG = EasyDict()
 
 # ================= general ================= #
-CFG.DESCRIPTION = "Crossformer model configuration "
+CFG.DESCRIPTION = "CBAMformerRouter model configuration "
 CFG.RUNNER = SimpleTimeSeriesForecastingRunner
 CFG.DATASET_CLS = TimeSeriesForecastingDataset
-CFG.DATASET_NAME = "ETTm1"
+CFG.DATASET_NAME = "ETTh1"
 CFG.DATASET_TYPE = "Electricity Transformer Temperature"
-CFG.DATASET_INPUT_LEN = 96
+CFG.DATASET_INPUT_LEN = 336
 CFG.DATASET_OUTPUT_LEN = 336
 CFG.GPU_NUM = 1
-# CFG.RESCALE = False
-
+CFG.RESCALE = False
+CFG.TARGET_METRICS = "MSE"
 # ================= environment ================= #
 CFG.ENV = EasyDict()
 CFG.ENV.SEED = 0
@@ -31,18 +31,18 @@ CFG.ENV.CUDNN.ENABLED = True
 
 # ================= model ================= #
 CFG.MODEL = EasyDict()
-CFG.MODEL.NAME = "Crossformer"
-CFG.MODEL.ARCH = Crossformer
+CFG.MODEL.NAME = "CBAMformerRouter"
+CFG.MODEL.ARCH = CBAMformerRouter
 NUM_NODES = 7
 CFG.MODEL.PARAM = {
-    "data_dim": NUM_NODES,
-    "in_len": CFG.DATASET_INPUT_LEN,
-    "out_len": CFG.DATASET_OUTPUT_LEN,
-    "seg_len": 12,
-    "win_size": 2,
+    "n_feat": NUM_NODES,
+    "in_ts_len": CFG.DATASET_INPUT_LEN,
+    "out_ts_len": CFG.DATASET_OUTPUT_LEN,
+    "seg_len": 24,
+    "merge_win_size": 2,
     # default parameters
     "factor": 10,
-    "d_model": 256,
+    "d_seg": 256,
     "d_ff": 512,
     "n_heads": 4,
     "e_layers": 3,
@@ -54,26 +54,23 @@ CFG.MODEL.TARGET_FEATURES = [0]
 
 # ================= optim ================= #
 CFG.TRAIN = EasyDict()
-CFG.TRAIN.LOSS = masked_mae
+CFG.TRAIN.LOSS = masked_mse
 CFG.TRAIN.OPTIM = EasyDict()
 CFG.TRAIN.OPTIM.TYPE = "Adam"
 CFG.TRAIN.OPTIM.PARAM = {
-    "lr": 0.0005
+    "lr": 0.00005
 }
 CFG.TRAIN.LR_SCHEDULER = EasyDict()
 CFG.TRAIN.LR_SCHEDULER.TYPE = "MultiStepLR"
 CFG.TRAIN.LR_SCHEDULER.PARAM = {
-    "milestones": [1],
+    "milestones": [1, 5],
     "gamma": 0.5
 }
 
 # ================= train ================= #
-CFG.TRAIN.CLIP_GRAD_PARAM = {
-    "max_norm": 5.0
-}
-CFG.TRAIN.NUM_EPOCHS = 1000
+CFG.TRAIN.NUM_EPOCHS = 50
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    '/SSDc/sowon/checkpoints/5sd8ss7y81',
+    '/SSDc/sowon/checkpoints_false/1',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data

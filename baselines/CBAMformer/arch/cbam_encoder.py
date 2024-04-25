@@ -7,6 +7,7 @@ from math import ceil
 from torch import Tensor
 from typing import Callable, Optional
 from torch.nn.modules.transformer import TransformerEncoderLayer
+from .attn import OneStageAttentionLayer
 
 class SegMerging(nn.Module):
     '''
@@ -16,7 +17,8 @@ class SegMerging(nn.Module):
     we set win_size = 2 in our paper
     '''
     def __init__(self, seg_dim, win_size, norm_layer=nn.LayerNorm):
-        super().__init__()
+        super(SegMerging, self).__init__()
+
         self.seg_dim = seg_dim
         self.win_size = win_size
         self.linear_trans = nn.Linear(win_size * seg_dim, seg_dim)
@@ -73,9 +75,46 @@ class scale_block(nn.Module):
         x = x.reshape(x.shape[0], -1, x.shape[-1]) # b, n_feat*n_seg, d_seg
         for layer in self.encode_layers: #0: x =>  
             x = layer(x)       
-       
+        
         
         return x
+
+class scale_block_one(nn.Module):
+    '''
+    We can use one segment merging layer followed by multiple TSA layers in each scale
+    the parameter `depth' determines the number of TSA layers used in each scale
+    We set depth = 1 in the paper
+    '''
+    def __init__(self, win_size, seg_dim, n_heads, d_ff, depth, dropout, \
+                    seg_num = 10, factor=10):
+        super(scale_block_one, self).__init__()
+
+        if (win_size > 1):
+            self.merge_layer = SegMerging(seg_dim, win_size, nn.LayerNorm)
+        else:
+            self.merge_layer = None
+        
+        self.encode_layers = nn.ModuleList()
+
+        for i in range(depth):
+            self.encode_layers.append(OneStageAttentionLayer( n_seg= seg_num, factor=factor, \
+                                                             d_seg=seg_dim, n_heads=n_heads, d_ff = None, dropout=dropout))
+                
+       
+    def forward(self, x): # b, n_feat, n_seg, d_seg
+        
+        num_feat = x.shape[1]
+        if self.merge_layer is not None: # 1: b, n_feat*n_seg, d_seg
+            x = rearrange(x, 'b (n_feat n_seg) d_seg -> b n_feat n_seg d_seg', n_feat = num_feat)
+            x = self.merge_layer(x) # 1: b, n_feat, n_seg/2, d_seg
+         
+        x = x.reshape(x.shape[0], -1, x.shape[-1]) # b, n_feat*n_seg, d_seg
+        for layer in self.encode_layers: #0: x =>  
+            x = layer(x)       
+        
+        
+        return x
+    
 
 
 class Encoder(nn.Module):
@@ -95,6 +134,7 @@ class Encoder(nn.Module):
 
     def forward(self, x): #[b, n_feat, n_seg, d_seg]
         encode_x = []
+        x = x.reshape(x.shape[0], -1, x.shape[-1])
         encode_x.append(x)
         
         for block in self.encode_blocks:
@@ -103,3 +143,28 @@ class Encoder(nn.Module):
 
         return encode_x
     
+class EncoderRouter(nn.Module):
+    '''
+    The Encoder of Crossformer.
+    '''
+    def __init__(self, e_blocks, win_size, seg_dim, n_heads, d_ff, block_depth, dropout,
+                in_seg_num = 10, factor=10):
+        super(EncoderRouter, self).__init__()
+        self.encode_blocks = nn.ModuleList()
+
+        self.encode_blocks.append(scale_block_one(1, seg_dim, n_heads, d_ff, block_depth, dropout,\
+                                            in_seg_num, factor))
+        for i in range(1, e_blocks):
+            self.encode_blocks.append(scale_block_one(win_size, seg_dim, n_heads, d_ff, block_depth, dropout,\
+                                            in_seg_num, factor))
+
+    def forward(self, x): #[b, n_feat, n_seg, d_seg]
+        encode_x = []
+        x = x.reshape(x.shape[0], -1, x.shape[-1])
+        encode_x.append(x)
+        
+        for block in self.encode_blocks:
+            x = block(x)
+            encode_x.append(x)
+
+        return encode_x

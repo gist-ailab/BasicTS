@@ -21,7 +21,7 @@ CFG.DATASET_TYPE = "Electricity Transformer Temperature"
 CFG.DATASET_INPUT_LEN = 96
 CFG.DATASET_OUTPUT_LEN = 336
 CFG.GPU_NUM = 1
-# CFG.RESCALE = False
+CFG.RESCALE = False
 
 # ================= environment ================= #
 CFG.ENV = EasyDict()
@@ -79,7 +79,7 @@ CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
 # train data
 CFG.TRAIN.DATA = EasyDict()
 # read data
-CFG.TRAIN.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
+CFG.TRAIN.DATA.DIR = '/ailab_mat/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.TRAIN.DATA.BATCH_SIZE = 64
 CFG.TRAIN.DATA.PREFETCH = False
@@ -93,7 +93,7 @@ CFG.VAL.INTERVAL = 1
 # validating data
 CFG.VAL.DATA = EasyDict()
 # read data
-CFG.VAL.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
+CFG.VAL.DATA.DIR = '/ailab_mat/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.VAL.DATA.BATCH_SIZE = 64
 CFG.VAL.DATA.PREFETCH = False
@@ -107,7 +107,7 @@ CFG.TEST.INTERVAL = 1
 # test data
 CFG.TEST.DATA = EasyDict()
 # read data
-CFG.TEST.DATA.DIR = '/SSDc/sowon/dataset/forecast/lstf/' + CFG.DATASET_NAME
+CFG.TEST.DATA.DIR = '/ailab_mat/dataset/forecast/lstf/' + CFG.DATASET_NAME
 # dataloader args, optional
 CFG.TEST.DATA.BATCH_SIZE = 64
 CFG.TEST.DATA.PREFETCH = False

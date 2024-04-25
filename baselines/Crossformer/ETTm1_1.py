@@ -71,9 +71,9 @@ CFG.TRAIN.LR_SCHEDULER.PARAM = {
 CFG.TRAIN.CLIP_GRAD_PARAM = {
     "max_norm": 5.0
 }
-CFG.TRAIN.NUM_EPOCHS = 50
+CFG.TRAIN.NUM_EPOCHS = 1000
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    '/SSDc/sowon/checkpoints/8',
+    '/SSDc/sowon/checkpoints/g8',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data

@@ -8,12 +8,12 @@ from basicts.losses import masked_mae, masked_mse
 from basicts.data import TimeSeriesForecastingDataset
 from basicts.runners import SimpleTimeSeriesForecastingRunner
 
-from .arch import Crossformer
+from .arch import CBAMformer
 
 CFG = EasyDict()
 
 # ================= general ================= #
-CFG.DESCRIPTION = "Crossformer model configuration "
+CFG.DESCRIPTION = "CBAMformer model configuration "
 CFG.RUNNER = SimpleTimeSeriesForecastingRunner
 CFG.DATASET_CLS = TimeSeriesForecastingDataset
 CFG.DATASET_NAME = "ETTm1"
@@ -21,7 +21,7 @@ CFG.DATASET_TYPE = "Electricity Transformer Temperature"
 CFG.DATASET_INPUT_LEN = 96
 CFG.DATASET_OUTPUT_LEN = 336
 CFG.GPU_NUM = 1
-# CFG.RESCALE = False
+CFG.RESCALE = False
 
 # ================= environment ================= #
 CFG.ENV = EasyDict()
@@ -31,18 +31,18 @@ CFG.ENV.CUDNN.ENABLED = True
 
 # ================= model ================= #
 CFG.MODEL = EasyDict()
-CFG.MODEL.NAME = "Crossformer"
-CFG.MODEL.ARCH = Crossformer
+CFG.MODEL.NAME = "CBAMformer"
+CFG.MODEL.ARCH = CBAMformer
 NUM_NODES = 7
 CFG.MODEL.PARAM = {
-    "data_dim": NUM_NODES,
-    "in_len": CFG.DATASET_INPUT_LEN,
-    "out_len": CFG.DATASET_OUTPUT_LEN,
+    "n_feat": NUM_NODES,
+    "in_ts_len": CFG.DATASET_INPUT_LEN,
+    "out_ts_len": CFG.DATASET_OUTPUT_LEN,
     "seg_len": 12,
-    "win_size": 2,
+    "merge_win_size": 2,
     # default parameters
     "factor": 10,
-    "d_model": 256,
+    "d_seg": 256,
     "d_ff": 512,
     "n_heads": 4,
     "e_layers": 3,
@@ -71,9 +71,9 @@ CFG.TRAIN.LR_SCHEDULER.PARAM = {
 CFG.TRAIN.CLIP_GRAD_PARAM = {
     "max_norm": 5.0
 }
-CFG.TRAIN.NUM_EPOCHS = 1000
+CFG.TRAIN.NUM_EPOCHS = 50
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    '/SSDc/sowon/checkpoints/5sd8ss7y81',
+    '/SSDc/sowon/checkpoints_false',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data

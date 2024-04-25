@@ -58,6 +58,7 @@ class SimpleTimeSeriesForecastingRunner(BaseTimeSeriesForecastingRunner):
         history_data = self.to_running_device(history_data)      # B, L, N, C
         future_data = self.to_running_device(future_data)       # B, L, N, C
         batch_size, length, num_nodes, _ = future_data.shape
+        
 
         history_data = self.select_input_features(history_data)
         if train:
@@ -69,11 +70,13 @@ class SimpleTimeSeriesForecastingRunner(BaseTimeSeriesForecastingRunner):
 
         # model forward
         model_return = self.model(history_data=history_data, future_data=future_data_4_dec, batch_seen=iter_num, epoch=epoch, train=train)
+    
 
         # parse model return
         if isinstance(model_return, torch.Tensor): model_return = {"prediction": model_return}
         if "inputs" not in model_return: model_return["inputs"] = self.select_target_features(history_data)
         if "target" not in model_return: model_return["target"] = self.select_target_features(future_data)
+        # print(list(model_return["prediction"].shape)[:3])
         assert list(model_return["prediction"].shape)[:3] == [batch_size, length, num_nodes], \
             "error shape of the output, edit the forward function to reshape it to [B, L, N, C]"
         return model_return
