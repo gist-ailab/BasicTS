@@ -8,6 +8,7 @@ import time
 from tqdm import tqdm
 from easytorch.core.checkpoint import save_ckpt, clear_ckpt, backup_last_ckpt, load_ckpt
 from torch.nn.parallel import DistributedDataParallel as DDP
+import os 
 
 class SimpleLongTimeSeriesForecastingRunner(BaseTimeSeriesForecastingRunner):
     """Simple Runner: select forward features and target features. This runner can cover most cases."""
@@ -157,6 +158,41 @@ class SimpleLongTimeSeriesForecastingRunner(BaseTimeSeriesForecastingRunner):
 
         self.on_training_end()  
 
+    # @master_only
+    def save_best_model(self, epoch: int, metric_name: str, greater_best: bool = True):
+        """Save the best model while training.
+
+        Examples:
+            >>> def on_validating_end(self, train_epoch: Optional[int]):
+            >>>     if train_epoch is not None:
+            >>>         self.save_best_model(train_epoch, 'val/loss', greater_best=False)
+
+        Args:
+            epoch (int): current epoch.
+            metric_name (str): metric name used to measure the model, must be registered in `epoch_meter`.
+            greater_best (bool, optional): `True` means greater value is best, such as `acc`
+                `False` means lower value is best, such as `loss`. Defaults to True.
+        """
+
+        metric = self.meter_pool.get_avg(metric_name)
+        best_metric = self.best_metrics.get(metric_name)
+        if best_metric is None or (metric > best_metric if greater_best else metric < best_metric):
+            self.best_metrics[metric_name] = metric
+            model = self.model.module if isinstance(self.model, DDP) else self.model
+            ckpt_dict = {
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optim_state_dict': self.optim.state_dict(),
+                'best_metrics': self.best_metrics,
+                'early_stop_counter': self.early_stopping.counter,
+                'early_stop_val_loss': self.early_stopping.val_loss
+            }
+            ckpt_path = os.path.join(
+                self.ckpt_save_dir,
+                '{}_best_{}.pt'.format(self.model_name, metric_name.replace('/', '_'))
+            )
+            save_ckpt(ckpt_dict, ckpt_path, self.logger)
+
 
     def load_model_resume(self, strict: bool = True):
         """Load last checkpoint in checkpoint save dir to resume training.
@@ -188,7 +224,7 @@ class SimpleLongTimeSeriesForecastingRunner(BaseTimeSeriesForecastingRunner):
             if checkpoint_dict['early_stop_counter']>= self.early_stopping.patience:
                 RuntimeError("Early stopping")
             self.early_stopping.counter = checkpoint_dict['early_stop_counter']
-            self.early_stopping.val_metric = checkpoint_dict['early_stop_val_loss']
+            self.early_stopping.loss = checkpoint_dict['early_stop_val_loss']
 
         except (IndexError, OSError, KeyError):
             pass
