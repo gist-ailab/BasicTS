@@ -6,15 +6,15 @@ sys.path.append(os.path.abspath(__file__ + "/../../.."))
 from easydict import EasyDict
 from basicts.losses import masked_mae, masked_mse
 from basicts.data import TimeSeriesForecastingDataset
-from basicts.runners import SimpleTimeSeriesForecastingRunner
-from .arch import CBAMformerRouter
+from basicts.runners import SimpleLongTimeSeriesForecastingRunner
+from .arch import Crossformer
 # from .arch import Crossformer
 
 CFG = EasyDict()
 
 # ================= general ================= #
-CFG.DESCRIPTION = "CBAMformerRouter model configuration "
-CFG.RUNNER = SimpleTimeSeriesForecastingRunner
+CFG.DESCRIPTION = "Crossformer model configuration "
+CFG.RUNNER = SimpleLongTimeSeriesForecastingRunner
 CFG.DATASET_CLS = TimeSeriesForecastingDataset
 CFG.DATASET_NAME = "ETTh1"
 CFG.DATASET_TYPE = "Electricity Transformer Temperature"
@@ -22,7 +22,7 @@ CFG.DATASET_INPUT_LEN = 336
 CFG.DATASET_OUTPUT_LEN = 336
 CFG.GPU_NUM = 1
 CFG.RESCALE = False
-CFG.TARGET_METRICS = "MSE"
+CFG.TARGET_METRICS = "MSE" 
 # ================= environment ================= #
 CFG.ENV = EasyDict()
 CFG.ENV.SEED = 0
@@ -31,18 +31,18 @@ CFG.ENV.CUDNN.ENABLED = True
 
 # ================= model ================= #
 CFG.MODEL = EasyDict()
-CFG.MODEL.NAME = "CBAMformerRouter"
-CFG.MODEL.ARCH = CBAMformerRouter
+CFG.MODEL.NAME = "Crossformer"
+CFG.MODEL.ARCH = Crossformer
 NUM_NODES = 7
 CFG.MODEL.PARAM = {
-    "n_feat": NUM_NODES,
-    "in_ts_len": CFG.DATASET_INPUT_LEN,
-    "out_ts_len": CFG.DATASET_OUTPUT_LEN,
+    "data_dim": NUM_NODES,
+    "in_len": CFG.DATASET_INPUT_LEN,
+    "out_len": CFG.DATASET_OUTPUT_LEN,
     "seg_len": 24,
-    "merge_win_size": 2,
+    "win_size": 2,
     # default parameters
     "factor": 10,
-    "d_seg": 256,
+    "d_model": 256,
     "d_ff": 512,
     "n_heads": 4,
     "e_layers": 3,
@@ -70,7 +70,7 @@ CFG.TRAIN.LR_SCHEDULER.PARAM = {
 # ================= train ================= #
 CFG.TRAIN.NUM_EPOCHS = 50
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
-    '/SSDc/sowon/checkpoints_false/1',
+    '/SSDc/sowon/checkpoints_false_',
     '_'.join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])
 )
 # train data

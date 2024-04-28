@@ -39,6 +39,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     cfg_path = 'baselines/{0}/{1}.py'.format(args.model, args.dataset)
-    ckpt_path = 'ckpt/{0}/{1}/{0}_best_val_MAE.pt'.format(args.model, args.dataset)
+    ckpt_path = 'ckpt/{0}/{1}/{0}_best_val_MSE.pt'.format(args.model, args.dataset)
 
     launch_runner(cfg_path, inference, (ckpt_path, args.batch_size), devices=args.gpus)

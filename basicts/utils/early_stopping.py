@@ -10,20 +10,21 @@ class EarlyStopping:
         self.counter = 0
         self.best_score = None
         self.early_stop = False
-        self.val_loss_min = np.Inf
+        self.init_metric = -np.Inf
         self.delta = delta
         self.ref = ref
         self.best_epoch = 1
 
     def __call__(self, val_loss, model, path, epoch):
         score = -val_loss
+        self.val_metric = val_loss
         if self.best_score is None:
             self.best_score = score
             self.ref.save_best_model(epoch, "val_" + self.ref.target_metric_name, False)
             if self.verbose:
-                self.ref.logger.info(f'Validation loss decreased ({self.ref.target_metric_name}: {self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
+                self.ref.logger.info(f'Validation loss decreased ({self.ref.target_metric_name}: {self.init_metric:.6f} --> {self.val_metric:.6f}).  Saving model ...')
             self.best_epoch = epoch
-            self.val_loss_min = val_loss
+            self.init_metric = self.val_metric
                 # print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
 
             # self.save_checkpoint(val_loss, model, path)
@@ -37,11 +38,10 @@ class EarlyStopping:
             self.best_score = score
             self.ref.save_best_model(epoch, "val_" + self.ref.target_metric_name, False)
             if self.verbose:
-                self.ref.logger.info(f'Validation loss decreased ({self.ref.target_metric_name}: {self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
+                self.ref.logger.info(f'Validation loss decreased ({self.ref.target_metric_name}: {self.init_metric:.6f} --> {self.val_metric:.6f}).  Saving model ...')
             self.best_epoch = epoch
-            self.val_loss_min = val_loss
+            self.init_metric = self.val_metric
                 # print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
-
             self.counter = 0
 
     # def save_checkpoint(self, val_loss, model, path):
